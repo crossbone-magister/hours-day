@@ -50,3 +50,5 @@ hours-day
 coverage.out
 
 dist/
+
+.idea/
