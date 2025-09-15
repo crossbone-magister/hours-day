@@ -2,15 +2,18 @@ package main
 
 import (
 	"fmt"
-	"github.com/crossbone-magister/timewlib"
 	"hours-day/logic"
 	"hours-day/output"
 	"os"
+
+	"github.com/crossbone-magister/timewlib"
 )
 
 func main() {
 	parsed, err := timewlib.Parse(os.Stdin)
 	if err == nil {
+		timewlib.ExitOnNoData(parsed.Intervals, parsed.Configuration)
+		timewlib.SetupLogging(parsed.Configuration)
 		intervals, err := timewlib.Process(parsed.Intervals)
 		hoursDay, totalHours, totalOvertime, totalUndertime := logic.CalculateDayHours(intervals)
 		if err == nil {
@@ -23,14 +26,9 @@ func main() {
 			fmt.Println(output.FormatTotalUndertime(totalUndertime))
 			fmt.Println(output.FormatActualOvertime(totalOvertime - totalUndertime))
 		} else {
-			printErrorAndExit(err)
+			timewlib.ExitIfError(err)
 		}
 	} else {
-		printErrorAndExit(err)
+		timewlib.ExitIfError(err)
 	}
-}
-
-func printErrorAndExit(err error) {
-	fmt.Printf("Error while reading timewarrior input: %s\n", err)
-	os.Exit(1)
 }
